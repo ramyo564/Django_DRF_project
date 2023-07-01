@@ -1,5 +1,4 @@
 import json
-import factory
 import pytest
 
 pytestmark = pytest.mark.django_db
