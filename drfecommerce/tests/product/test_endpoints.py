@@ -21,7 +21,7 @@ class TestCategoryEndpoints:
 
 
 class TestBrandEndpoints:
-    
+
     endpoint = "/api/brand/"
 
     def test_brand_get(self, brand_factory, api_client):
