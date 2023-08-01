@@ -41,11 +41,6 @@ class TestCategoryModel:
         qs = Category.objects.is_active().count()
         assert qs == 1
         
-# class TestBrandModel:
-#     def test_str_method(self, brand_factory):
-#         x = brand_factory(name="test_brand")
-#         assert x.__str__() == "test_brand"
-
 
 # class TestProductModel:
 #     def test_str_method(self, product_factory):
