@@ -48,7 +48,7 @@ class ProductViewSet(viewsets.ViewSet):
     '''
     # queryset = Product.isactive.all()
 
-    queryset = Product.objects.all().isactive()
+    queryset = Product.objects.all().is_active()
     lookup_field = "slug"
 
     def retrieve(self, request, slug=None):

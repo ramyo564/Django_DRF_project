@@ -5,19 +5,19 @@ from .fields import OrderField
 from django.core.exceptions import ValidationError
 
 
-class ActiveQueryset(models.QuerySet):
+class IsActiveQueryset(models.QuerySet):
 
-    def isactive(self):
+    def is_active(self):
         return self.filter(is_active=True)
 
 
 # Create your models here.
 class Category(MPTTModel):
-    name = models.CharField(max_length=100, unique=True)
-    slug = models.SlugField(max_length=255)
+    name = models.CharField(max_length=255, unique=True)
+    slug = models.SlugField(max_length=255, unique=True)
     is_active = models.BooleanField(default=False)
     parent = TreeForeignKey("self", on_delete=models.PROTECT, null=True, blank=True)
-    objects = ActiveQueryset.as_manager()
+    objects = IsActiveQueryset.as_manager()
 
     class MPTTmeta:
         order_insertion_by = ['name']
@@ -29,7 +29,7 @@ class Category(MPTTModel):
 class Brand(models.Model):
     name = models.CharField(max_length=100, unique=True)
     is_active = models.BooleanField(default=False)
-    objects = ActiveQueryset.as_manager()
+    objects = IsActiveQueryset.as_manager()
 
     def __str__(self):
         return self.name
@@ -44,7 +44,7 @@ class Product(models.Model):
     category = TreeForeignKey("Category", on_delete=models.SET_NULL, null=True, blank=True)
     is_active = models.BooleanField(default=False)
     product_type = models.ForeignKey("ProductType", on_delete=models.PROTECT)
-    objects = ActiveQueryset.as_manager()
+    objects = IsActiveQueryset.as_manager()
 
     def __str__(self):
         return self.name
@@ -119,7 +119,7 @@ class ProductLine(models.Model):
         related_name="product_line_attribute_value",
     )
 
-    objects = ActiveQueryset.as_manager()
+    objects = IsActiveQueryset.as_manager()
 
     def clean(self):
         query_set = ProductLine.objects.filter(product=self.product)
