@@ -33,7 +33,11 @@ class Product(models.Model):
     description = models.TextField(blank=True)
     is_digital = models.BooleanField(default=False)
     category = TreeForeignKey("Category", on_delete=models.PROTECT)
-    # product_type = models.ForeignKey("ProductType", on_delete=models.PROTECT)
+    product_type = models.ForeignKey(
+        "ProductType",
+        on_delete=models.PROTECT,
+        related_name="product_type"
+    )
     is_active = models.BooleanField(default=False)
     objects = IsActiveQueryset.as_manager()
     created_at = models.DateTimeField(
@@ -104,7 +108,8 @@ class ProductLine(models.Model):
     sku = models.CharField(max_length=10)
     stock_qty = models.IntegerField()
     product = models.ForeignKey(
-        Product, on_delete=models.PROTECT, related_name="product_line"
+        Product, on_delete=models.PROTECT,
+        related_name="product_line",
         )
     is_active = models.BooleanField(default=False)
     order = OrderField(unique_for_field="product", blank=True)
@@ -115,6 +120,11 @@ class ProductLine(models.Model):
     #     related_name="product_line_attribute_value",
     # )
 
+    product_type = models.ForeignKey(
+        "ProductType",
+        on_delete=models.PROTECT,
+        related_name="product_line_type",
+    )
     created_at = models.DateTimeField(
         auto_now_add=True,
         editable=False,
@@ -160,6 +170,9 @@ class ProductImage(models.Model):
 
 class ProductType(models.Model):
     name = models.CharField(max_length=100)
+    parent = models.ForeignKey(
+        "self", on_delete=models.PROTECT, null=True, blank=True
+    )
     attribute = models.ManyToManyField(
         Attribute,
         through="ProductTypeAttribute",

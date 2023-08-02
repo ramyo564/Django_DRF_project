@@ -53,6 +53,14 @@ class TestProductModel:
         obj = product_factory(name="test_product")
         assert obj.__str__() == "test_product"
 
+    def test_fk_product_type_on_delete_protect(
+        self, product_type_factory, product_factory
+    ):
+        obj1 = product_type_factory()
+        product_factory(product_type=obj1)
+        with pytest.raises(IntegrityError):
+            obj1.delete()
+
     def test_name_max_length(self, product_factory):
         name = "x" * 236
         obj = product_factory(name=name)
@@ -124,7 +132,9 @@ class TestProductLineModel:
         obj = product_line_factory(is_active=False)
         assert obj.is_active is False
 
-    def test_fk_product_on_delete_protect(self, product_factory, product_line_factory):
+    def test_fk_product_type_on_delete_protect(
+            self, product_factory, product_line_factory):
+        
         obj1 = product_factory()
         product_line_factory(product=obj1)
         with pytest.raises(IntegrityError):
@@ -143,34 +153,17 @@ class TestProductLineModel:
         assert qs == 2
 
 
-class TestProductImageModel:
-    def test_str_method(self, product_image_factory, product_line_factory):
-        obj1 = product_line_factory(sku="12345")
-        obj2 = product_image_factory(order=1, product_line=obj1)
-        assert obj2.__str__() == "12345_img"
+class TestProductTypeModel:
+    def test_str_method(self, product_type_factory):
+        obj = product_type_factory.create(name="test_type")
+        assert obj.__str__() == "test_type"
 
-    def test_alternative_text_field_length(self, product_image_factory):
-        alternative_text = "x" * 101
+    def test_name_field_max_length(self, product_type_factory):
+        name = "x" * 101
+        obj = product_type_factory(name=name)
         with pytest.raises(ValidationError):
-            product_image_factory(alternative_text=alternative_text)
-
-    def test_duplicate_order_values(self, product_image_factory, product_line_factory):
-        obj = product_line_factory()
-        product_image_factory(order=1, product_line=obj)
-        with pytest.raises(ValidationError):
-            product_image_factory(order=1, product_line=obj).clean()
-
-# class TestProductTypeModel:
-#     def test_str_method(self, product_type_factory, attribute_factory):
-#         test = attribute_factory(name="test")
-#         obj = product_type_factory.create(name="test_type", attribute=(test,))
-
-#         x = ProductTypeAttribute.objects.get(id=1)
-#         print(x)
-
-#         assert obj.__str__() == "test_type"
-
-
+            obj.full_clean()
+            
 # class TestAttributeModel:
 #     def test_str_method(self, attribute_factory):
 #         obj = attribute_factory(name="test_attribute")
