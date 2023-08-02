@@ -139,13 +139,13 @@ class ProductLine(models.Model):
 class ProductImage(models.Model):
     url = models.ImageField(upload_to=None, default="test.jpg")
     alternative_text = models.CharField(max_length=100)
-    productline = models.ForeignKey(
+    product_line = models.ForeignKey(
         ProductLine, on_delete=models.CASCADE, related_name="product_image"
     )
-    order = OrderField(unique_for_field="productline", blank=True)
+    order = OrderField(unique_for_field="product_line", blank=True)
 
     def clean(self):
-        query_set = ProductImage.objects.filter(productline=self.productline)
+        query_set = ProductImage.objects.filter(product_line=self.product_line)
         for object in query_set:
             if self.id != object.id and self.order == object.order:
                 raise ValidationError("Duplicate value.")
@@ -155,7 +155,7 @@ class ProductImage(models.Model):
         return super(ProductImage, self).save(*args, **kwargs)
 
     def __str__(self):
-        return str(self.order)
+        return f"{self.product_line.sku}_img"
 
 
 class ProductType(models.Model):
