@@ -4,12 +4,12 @@ from rest_framework.test import APIClient
 
 from .factories import (
 
-    CategoryFactory,
+    CategoryFactory, ProductFactory
 
 )
 
 register(CategoryFactory)
-# register(ProductFactory)
+register(ProductFactory)
 # register(ProductLineFactory)
 # register(ProductImageFactory)
 # register(ProductTypeFactory)

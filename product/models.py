@@ -29,12 +29,17 @@ class Category(MPTTModel):
 class Product(models.Model):
     name = models.CharField(max_length=100)
     slug = models.SlugField(max_length=255)
+    pid = models.CharField(max_length=10, unique=True)
     description = models.TextField(blank=True)
     is_digital = models.BooleanField(default=False)
-    category = TreeForeignKey("Category", on_delete=models.SET_NULL, null=True, blank=True)
+    category = TreeForeignKey("Category", on_delete=models.PROTECT)
+    # product_type = models.ForeignKey("ProductType", on_delete=models.PROTECT)
     is_active = models.BooleanField(default=False)
-    product_type = models.ForeignKey("ProductType", on_delete=models.PROTECT)
     objects = IsActiveQueryset.as_manager()
+    created_at = models.DateTimeField(
+        auto_now=True,
+        editable=False,
+    )
 
     def __str__(self):
         return self.name

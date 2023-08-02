@@ -4,7 +4,7 @@ from product.models import (
     # Attribute,
     # AttributeValue,
     Category,
-    # Product,
+    Product,
     # ProductImage,
     # ProductLine,
     # ProductType
@@ -15,8 +15,21 @@ class CategoryFactory(factory.django.DjangoModelFactory):
     class Meta:
         model = Category
 
-    name = factory.Sequence(lambda n: "Category_%d" % n)
+    name = factory.Sequence(lambda n: "test_category_%d" % n)
     slug = factory.Sequence(lambda n: "test_slug_%d" % n)
+
+
+class ProductFactory(factory.django.DjangoModelFactory):
+    class Meta:
+        model = Product
+
+    name = factory.Sequence(lambda n: "test_product_name_%d" % n)
+    pid = factory.Sequence(lambda n: "0000_%d" % n)
+    description = "test_description"
+    is_digital = False
+    category = factory.SubFactory(CategoryFactory)
+    is_active = True
+    # product_type = factory.SubFactory(ProductTypeFactory)
 
 
 # class AttributeFactory(factory.django.DjangoModelFactory):
@@ -38,18 +51,6 @@ class CategoryFactory(factory.django.DjangoModelFactory):
 #         if not create or not extracted:
 #             return
 #         self.attribute.add(*extracted)
-
-
-# class ProductFactory(factory.django.DjangoModelFactory):
-#     class Meta:
-#         model = Product
-
-#     name = "test_Product"
-#     description = "test_description"
-#     is_digital = True
-#     category = factory.SubFactory(CategoryFactory)
-#     is_active = True
-#     product_type = factory.SubFactory(ProductTypeFactory)
 
 
 # class AttributeValueFactory(factory.django.DjangoModelFactory):
