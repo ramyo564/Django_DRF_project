@@ -1,7 +1,7 @@
 import factory
 
 from product.models import (
-    # Attribute,
+    Attribute,
     # AttributeValue,
     Category,
     Product,
@@ -24,6 +24,13 @@ class ProductTypeFactory(factory.django.DjangoModelFactory):
         model = ProductType
 
     name = factory.Sequence(lambda n: "test_type_name_%d" % n)
+
+    # M2M
+    @factory.post_generation
+    def attribute(self, create, extracted, **kwargs):
+        if not create or not extracted:
+            return
+        self.attribute.add(*extracted)
 
 
 class ProductFactory(factory.django.DjangoModelFactory):
@@ -67,20 +74,12 @@ class ProductImageFactory(factory.django.DjangoModelFactory):
     product_line = factory.SubFactory(ProductLineFactory)
 
 
-# class AttributeFactory(factory.django.DjangoModelFactory):
-#     class Meta:
-#         model = Attribute
+class AttributeFactory(factory.django.DjangoModelFactory):
+    class Meta:
+        model = Attribute
 
-#     name = "attribute_name_test"
-#     description = "attr_description_test"
-
-
-#     @factory.post_generation
-#     def attribute(self, create, extracted, **kwargs):
-#         if not create or not extracted:
-#             return
-#         self.attribute.add(*extracted)
-
+    name = "attribute_name_test"
+    description = "attr_description_test"
 
 # class AttributeValueFactory(factory.django.DjangoModelFactory):
 #     class Meta:
