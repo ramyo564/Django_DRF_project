@@ -9,8 +9,8 @@ from rest_framework.decorators import action
 from rest_framework.response import Response
 from sqlparse import format
 
-from .models import Brand, Category, Product
-from .serializers import BrandSerializer, CategorySerializer, ProductSerializer
+from .models import Category, Product
+from .serializers import CategorySerializer, ProductSerializer
 
 # Create your views here.
 
@@ -28,32 +28,18 @@ class CategoryViewSet(viewsets.ViewSet):
         return Response(serializer.data)
 
 
-class BrandViewSet(viewsets.ViewSet):
-    '''
-    A simple Viewset for viewing all brands
-    '''
-
-    queryset = Brand.objects.all()
-    # print(queryset)
-
-    @extend_schema(responses=BrandSerializer)
-    def list(self, request):
-        serializer = BrandSerializer(self.queryset, many=True)
-        return Response(serializer.data)
-
-
 class ProductViewSet(viewsets.ViewSet):
     '''
     A simple Viewset for viewing all products
     '''
     # queryset = Product.isactive.all()
 
-    queryset = Product.objects.all().isactive()
+    queryset = Product.objects.all().is_active()
     lookup_field = "slug"
 
     def retrieve(self, request, slug=None):
         serializer = ProductSerializer(
-            self.queryset.filter(slug=slug).select_related("category", "brand")
+            self.queryset.filter(slug=slug).select_related("category")
             .prefetch_related(Prefetch("product_line__product_image"))
             .prefetch_related(Prefetch("product_line__attribute_value__attribute")),
             many=True,
