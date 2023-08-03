@@ -44,6 +44,12 @@ class Product(models.Model):
         auto_now=True,
         editable=False,
     )
+    attribute_value = models.ManyToManyField(
+        "AttributeValue",
+        through="ProductAttributeValue",
+        related_name="product_attr_value",
+    )
+    objects = IsActiveQueryset.as_manager()
 
     def __str__(self):
         return self.name
@@ -65,6 +71,42 @@ class AttributeValue(models.Model):
 
     def __str__(self):
         return f"{self.attribute.name}-{self.attribute_value}"
+
+
+class ProductAttributeValue(models.Model):
+    attribute_value = models.ForeignKey(
+        AttributeValue,
+        on_delete=models.CASCADE,
+        related_name="product_value_av",
+    )
+    product = models.ForeignKey(
+        "Product",
+        on_delete=models.CASCADE,
+        related_name="product_value_pl",
+    )
+
+    class Meta:
+        unique_together = ("attribute_value", "product")
+
+    def clean(self):
+        qs = (
+            ProductLineAttributeValue.objects.filter(
+                attribute_value=self.attribute_value
+            ).filter(product_line=self.product_line)
+            .exists()
+        )
+
+        if not qs:
+            iqs = Attribute.objects.filter(
+                attribute_value__product_line_attribute_value=self.product_line
+            ).values_list("pk", flat=True)
+
+            if self.attribute_value.attribute.id in list(iqs):
+                raise ValidationError("Duplicate attribute exists")
+
+    def save(self, *args, **kwargs):
+        self.full_clean()
+        return super(ProductLineAttributeValue, self).save(*args, **kwargs)
 
 
 class ProductLineAttributeValue(models.Model):
@@ -114,11 +156,11 @@ class ProductLine(models.Model):
     is_active = models.BooleanField(default=False)
     order = OrderField(unique_for_field="product", blank=True)
     weight = models.FloatField()
-    # attribute_value = models.ManyToManyField(
-    #     AttributeValue,
-    #     through="ProductLineAttributeValue",
-    #     related_name="product_line_attribute_value",
-    # )
+    attribute_value = models.ManyToManyField(
+        AttributeValue,
+        through="ProductLineAttributeValue",
+        related_name="product_line_attribute_value",
+    )
 
     product_type = models.ForeignKey(
         "ProductType",

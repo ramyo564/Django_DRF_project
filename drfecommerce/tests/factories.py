@@ -2,12 +2,13 @@ import factory
 
 from product.models import (
     Attribute,
-    # AttributeValue,
+    AttributeValue,
     Category,
     Product,
     ProductImage,
     ProductLine,
-    ProductType
+    ProductType,
+    ProductLineAttributeValue,
     )
 
 
@@ -45,6 +46,12 @@ class ProductFactory(factory.django.DjangoModelFactory):
     is_active = True
     product_type = factory.SubFactory(ProductTypeFactory)
 
+    @factory.post_generation
+    def attribute_value(self, create, extracted, **kwargs):
+        if not create or not extracted:
+            return
+        self.attribute_value.add(*extracted)
+
 
 class ProductLineFactory(factory.django.DjangoModelFactory):
     class Meta:
@@ -58,11 +65,11 @@ class ProductLineFactory(factory.django.DjangoModelFactory):
     weight = 100
     product_type = factory.SubFactory(ProductTypeFactory)
 
-    # @factory.post_generation
-    # def attribute_value(self, create, extracted, **kwargs):
-    #     if not create or not extracted:
-    #         return
-    #     self.attribute_value.add(*extracted)
+    @factory.post_generation
+    def attribute_value(self, create, extracted, **kwargs):
+        if not create or not extracted:
+            return
+        self.attribute_value.add(*extracted)
 
 
 class ProductImageFactory(factory.django.DjangoModelFactory):
@@ -81,9 +88,18 @@ class AttributeFactory(factory.django.DjangoModelFactory):
     name = "attribute_name_test"
     description = "attr_description_test"
 
-# class AttributeValueFactory(factory.django.DjangoModelFactory):
-#     class Meta:
-#         model = AttributeValue
 
-#     attribute_value = "attr_test"
-#     attribute = factory.SubFactory(AttributeFactory)
+class AttributeValueFactory(factory.django.DjangoModelFactory):
+    class Meta:
+        model = AttributeValue
+
+    attribute_value = "attr_test"
+    attribute = factory.SubFactory(AttributeFactory)
+
+
+class ProductLineAttributeValueFactory(factory.django.DjangoModelFactory):
+    class Meta:
+        model = ProductLineAttributeValue
+
+    attribute_value = factory.SubFactory(AttributeValueFactory)
+    product_line = factory.SubFactory(ProductLineFactory)
